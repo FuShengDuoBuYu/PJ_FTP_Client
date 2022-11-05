@@ -9,7 +9,23 @@
 # define MAX_CMDLINE 1024
 void read_command_from_cmdline(char *cmdline, struct user_command *command);
 
-void print_error_info(int error_code, char *error_info){
-    printf("Error: %d %s\n", error_code, error_info);
+void print_ftp_info(int ftp_code, char *ftp_info){
+    printf("Error: %d %s\n", ftp_code, ftp_info);
 }
+
+void ftp_put(char* filename,SOCKET sclient);
+
+void ftp_get(char* filename,SOCKET sclient);
+
+void ftp_ls(SOCKET sclient);
+
+void ftp_cd(char* dirname,SOCKET sclient);
+
+void ftp_mkdir(char* dirname,SOCKET sclient);
+
+void ftp_pwd(SOCKET sclient);
+
+void ftp_delete(char* filename,SOCKET sclient);
+
+void ftp_quit(SOCKET sclient);
 # endif
