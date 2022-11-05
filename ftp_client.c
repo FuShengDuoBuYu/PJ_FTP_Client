@@ -17,6 +17,8 @@ void read_command_from_cmdline(char *cmdline, struct user_command *command){
         strcpy(command->command_name, p);
         p = strtok(NULL, " ");
         if(p != NULL){
+            if(p[strlen(p)-1] == '\n')
+                p[strlen(p)-1] = '\0';
             strcpy(command->argument, p);
         }
         //三个参数,则会报错
@@ -50,13 +52,33 @@ void read_command_from_cmdline(char *cmdline, struct user_command *command){
 int main(){
     char cmdline[MAX_CMDLINE];
     struct user_command command;
+    //创建tcp Socket
+    SOCKET sclient = INVALID_SOCKET;
+    sclient = create_tcp_socket();
+    if(sclient == INVALID_SOCKET)
+        printf("socket error !");
+    //绑定本机的端口
+    bind_socket_local_port(sclient, 5555);
+    //连接server端
+    int connect_result = connect_to_server(sclient, "127.0.0.1",8888);
+    //读取命令并执行
     while(1){
         read_command_from_cmdline(cmdline,&command);
         if(strcmp(command.command_name, "get") == 0){
-            break;
+            
         }
         if(strcmp(command.command_name, "put") == 0){
-            break;
+            if(file_exists(command.argument) == 0){
+                print_error_info(550, "file not exists");
+                continue;
+            }
+            char *sendbuf = "this is a test";
+            //发送数据
+            int send_result = send_data_to_server(sclient, sendbuf);
+            //接收数据
+            char recvbuf[1024];
+            int recv_result = recv_data_from_server(sclient, recvbuf);
+            printf("%s\n", recvbuf);
         }
         if(strcmp(command.command_name, "delete") == 0){
             break;
@@ -74,9 +96,8 @@ int main(){
             break;
         }
         if(strcmp(command.command_name, "quit") == 0){
-            break;
+            closesocket(sclient);
         }
     }
-
     return 0;
 }

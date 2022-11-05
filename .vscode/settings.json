@@ -3,6 +3,9 @@
         "*.cjson": "jsonc",
         "*.wxss": "css",
         "*.wxs": "javascript",
-        "ftp_client.h": "c"
+        "ftp_client.h": "c",
+        "socketapi.h": "c",
+        "winsock2.h": "c",
+        "common.h": "c"
     }
 }
