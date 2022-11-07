@@ -59,9 +59,8 @@ void ftp_put(char* filename,SOCKET sclient){
     memset(send_buffer, 0, sizeof(send_buffer));
     //获取文件的内容,每次取1024字节,然后发送,直到最后一个发送的不到1024,代表文件已经发送完毕
     int last_send_size = MAX_FILE_SIZE;
-    int space_count = 0;
     while(last_send_size == MAX_FILE_SIZE){
-        last_send_size = get_file_content(filename, send_buffer, send_buffer_index,&space_count);
+        last_send_size = get_file_content(filename, send_buffer, send_buffer_index);
         send_data_to_server(sclient, send_buffer);
         memset(send_buffer, 0, sizeof(send_buffer));
         send_buffer_index++;
@@ -118,7 +117,7 @@ int main(){
     //绑定本机的端口
     bind_socket_local_port(sclient, 5555);
     //连接server端
-    int connect_result = connect_to_server(sclient, "127.0.0.1",8000);
+    int connect_result = connect_to_server(sclient, "127.0.0.1",8887);
     int count = 0;
     //连接失败进行轮询,轮询最多10次
     // while(connect_result == 0&&count < 10){

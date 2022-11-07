@@ -20,7 +20,6 @@ int get_file_content(const char *filename, char *buffer,int buffer_index,int *sp
     fseek(fp, buffer_index * MAX_FILE_SIZE+(*space_count), SEEK_SET);
     while(!feof(fp)&&i<MAX_FILE_SIZE){
         buffer[i] = fgetc(fp);
-    //fseek会将换行看作两个字符,所以要将换行的次数记录下来,下次从加上换行的次数开始读取
         if(buffer[i] == '\n'){
             (*space_count)++;
         }

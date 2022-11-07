@@ -52,7 +52,7 @@ int send_data_to_server(SOCKET sclient, char *sendbuf){
         WSACleanup();
         return 0;
     }
-    printf("Bytes Sent: %ld\n", iResult);
+    // printf("Bytes Sent: %ld\n", iResult);
     return 1;
 }
 
