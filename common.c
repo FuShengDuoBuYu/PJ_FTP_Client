@@ -1,4 +1,5 @@
 # include "common.h"
+#include "file_util.h"
 
 SOCKET create_tcp_socket(){
     WORD sockVersion = MAKEWORD(2,2);
@@ -45,7 +46,8 @@ int connect_to_server(SOCKET sclient, char *ip, int port){
 
 int send_data_to_server(SOCKET sclient, char *sendbuf){
     int iResult;
-    iResult = send(sclient, sendbuf, (int)strlen(sendbuf), 0 );
+    printf("%s\n", sendbuf);
+    iResult = send(sclient, sendbuf, MAX_FILE_SIZE, 0 );
     if (iResult == SOCKET_ERROR) {
         printf("send failed with error: %d\n", WSAGetLastError());
         closesocket(sclient);
@@ -58,7 +60,7 @@ int send_data_to_server(SOCKET sclient, char *sendbuf){
 
 int recv_data_from_server(SOCKET sclient, char *recvbuf){
     int iResult;
-    iResult = recv(sclient, recvbuf, 1024, 0);
+    iResult = recv(sclient, recvbuf, MAX_FILE_SIZE, 0);
     if(iResult == SOCKET_ERROR){
         printf("recv failed with error: %d\n", WSAGetLastError());
         closesocket(sclient);

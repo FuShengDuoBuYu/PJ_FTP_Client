@@ -81,7 +81,8 @@ void ftp_get(char* filename,SOCKET sclient){}
 
 void ftp_ls(SOCKET sclient){
     //先发送命令
-    char* pwd_command = "ls";
+    char pwd_command[MAX_FILE_SIZE] = "ls";
+    // char* pwd_command = "ls";
     send_data_to_server(sclient, pwd_command);
     char recvbuf[MAX_FILE_SIZE];
     //先把recvbuf清空
@@ -96,8 +97,8 @@ void ftp_mkdir(char* dirname,SOCKET sclient){}
 
 void ftp_pwd(SOCKET sclient){
     //先发送命令
-    char* pwd_command = "pwd";
-    send_data_to_server(sclient, pwd_command);
+    char command[MAX_FILE_SIZE] = "pwd";
+    send_data_to_server(sclient, command);
     char recvbuf[MAX_FILE_SIZE];
     //先把recvbuf清空
     memset(recvbuf, 0, sizeof(recvbuf));
