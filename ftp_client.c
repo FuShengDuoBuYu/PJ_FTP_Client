@@ -15,17 +15,6 @@ void read_command_from_cmdline(char *cmdline, struct user_command *command){
         if(p[strlen(p)-1] == '\n')
             p[strlen(p)-1] = '\0';
         strcpy(command->command_name, p);
-        p = strtok(NULL, " ");
-        if(p != NULL){
-            if(p[strlen(p)-1] == '\n')
-                p[strlen(p)-1] = '\0';
-            strcpy(command->argument, p);
-        }
-        //三个参数,则会报错
-        if(strtok(NULL, " ") != NULL){
-            print_ftp_info(500, "too many arguments");
-            continue;
-        }
         //查看命令是否是合法的
         if(
             strcmp(command->command_name, "get") != 0 
@@ -44,6 +33,20 @@ void read_command_from_cmdline(char *cmdline, struct user_command *command){
         while(command->command_name[i] != '\0'){
             command->command_name[i] = tolower(command->command_name[i]);
             i++;
+        }
+
+
+        p = strtok(NULL, " ");
+        if(p != NULL){
+            if(p[strlen(p)-1] == '\n')
+                p[strlen(p)-1] = '\0';
+            strcpy(command->argument, p);
+        }
+        // TODO: 带空格的文件名
+        //三个参数,则会报错
+        if(strtok(NULL, " ") != NULL){
+            print_ftp_info(500, "too many arguments");
+            continue;
         }
         break;
     }
@@ -126,7 +129,17 @@ void ftp_pwd(SOCKET sclient){
     printf("%s\n", recvbuf);
 }
 
-void ftp_delete(char* filename,SOCKET sclient){}
+void ftp_delete(char* filename,SOCKET sclient){
+    //先发送命令
+    char pwd_command[MAX_FILE_SIZE] = "delete ";
+    strcat(pwd_command, filename);
+    send_data_to_server(sclient, pwd_command);
+    char recvbuf[MAX_FILE_SIZE];
+    //先把recvbuf清空
+    memset(recvbuf, 0, sizeof(recvbuf));
+    int recv_result = recv_data_from_server(sclient, recvbuf);
+    printf("%s\n", recvbuf);
+}
 
 int main(){
     char cmdline[MAX_CMDLINE];
