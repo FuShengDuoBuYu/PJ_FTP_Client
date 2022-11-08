@@ -103,7 +103,17 @@ void ftp_cd(char* dirname,SOCKET sclient){
     printf("%s\n", recvbuf);
 }
 
-void ftp_mkdir(char* dirname,SOCKET sclient){}
+void ftp_mkdir(char* dirname,SOCKET sclient){
+    //先发送命令
+    char pwd_command[MAX_FILE_SIZE] = "mkdir ";
+    strcat(pwd_command, dirname);
+    send_data_to_server(sclient, pwd_command);
+    char recvbuf[MAX_FILE_SIZE];
+    //先把recvbuf清空
+    memset(recvbuf, 0, sizeof(recvbuf));
+    int recv_result = recv_data_from_server(sclient, recvbuf);
+    printf("%s\n", recvbuf);
+}
 
 void ftp_pwd(SOCKET sclient){
     //先发送命令
