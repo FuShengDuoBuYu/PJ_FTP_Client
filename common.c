@@ -90,7 +90,7 @@ int send_file_to_server(SOCKET sclient, char *filename){
     FileInfo *file_info;
     char *send_buffer = (char *)malloc(MAX_FILE_SIZE);
     do {
-        file_info = generate_file_info(filename, send_buffer, send_buffer_index);
+        file_info = generate_file_info(filename, send_buffer, send_buffer_index, &enter_count);
 printf("file_tag: %d file_tag: %d file_tag: %s\n", file_info->file_tag, file_info->file_rmd, file_info->buffer);
         // TODO: 发送文件信息
         // if(send_file_info_to_server(sclient, file_info) == 0){
