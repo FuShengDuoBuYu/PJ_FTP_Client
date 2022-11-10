@@ -57,22 +57,11 @@ void ftp_put(char* filename,SOCKET sclient){
         print_ftp_info(550, "file not exists");
         return;
     }
-    char send_buffer[MAX_FILE_SIZE];
-    int send_buffer_index = 0;
-    memset(send_buffer, 0, sizeof(send_buffer));
-    //获取文件的内容,每次取1024字节,然后发送,直到最后一个发送的不到1024,代表文件已经发送完毕
-    int last_send_size = MAX_FILE_SIZE;
-    int enter_count = 0;
-    while(last_send_size == MAX_FILE_SIZE){
-        last_send_size = get_file_content(filename, send_buffer, send_buffer_index,&enter_count);
-        send_data_to_server(sclient, send_buffer);
-        memset(send_buffer, 0, sizeof(send_buffer));
-        send_buffer_index++;
-    }
-    //接收数据
-    char recvbuf[MAX_FILE_SIZE];
-    int recv_result = recv_data_from_server(sclient, recvbuf);
-    printf("%s\n", recvbuf);
+    //先发送命令
+    char pwd_command[MAX_FILE_SIZE] = "put ";
+    strcat(pwd_command, filename);
+    send_data_to_server(sclient, pwd_command);
+    send_file_to_server(sclient, filename);
 }
 
 void ftp_quit(SOCKET sclient){

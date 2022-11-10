@@ -1,4 +1,6 @@
 # include "file_util.h"
+#include <stdlib.h>
+#include <string.h>
 
 int file_exists(const char *filename){
     printf("file %s\n", filename);
@@ -10,6 +12,24 @@ int file_exists(const char *filename){
     return 1;
 }
 
+FileInfo* generate_file_info(const char *filename, char *buffer, int buffer_index){
+    FileInfo* file_info = (FileInfo*)malloc(sizeof(FileInfo));
+    file_info->file_tag = 0;
+    file_info->file_rmd = 0;
+    memset(file_info->buffer, 0, sizeof(file_info->buffer));
+    int enter_count = 0;
+    //获取文件的内容,每次取1024字节,然后发送,直到最后一个发送的不到1024,代表文件已经发送完毕
+    int last_send_size = MAX_FILE_SIZE;
+    last_send_size = get_file_content(filename, buffer, buffer_index, &enter_count);
+    if(last_send_size < MAX_FILE_SIZE){
+        file_info->file_tag = 1;
+        file_info->file_rmd = last_send_size;
+    }
+    memcpy(file_info->buffer, buffer, sizeof(file_info->buffer));
+    return file_info;
+}
+
+// TODO: 尾部乱码问题
 int get_file_content(const char *filename, char *buffer,int buffer_index,int *enter_count){
     FILE *fp = fopen(filename, "r");
     if(fp == NULL){
