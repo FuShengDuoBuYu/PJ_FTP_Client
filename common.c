@@ -20,7 +20,7 @@ int bind_socket_local_port(SOCKET sclient, int port){
     int iResult;
     iResult = bind(sclient, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
     if(iResult == SOCKET_ERROR){
-        printf("bind error !");
+        printf("bind error ! %d\n", WSAGetLastError());
         closesocket(sclient);
         WSACleanup();
         return 0;
@@ -36,7 +36,7 @@ int connect_to_server(SOCKET sclient, char *ip, int port){
     serAddr.sin_addr.S_un.S_addr = inet_addr(ip);
     iResult = connect(sclient, (SOCKADDR *)&serAddr, sizeof(SOCKADDR));
     if(iResult == SOCKET_ERROR){
-        printf("connect error !\n");
+        printf("connect error ! %d\n", WSAGetLastError());
         closesocket(sclient);
         WSACleanup();
         return 0;

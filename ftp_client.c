@@ -75,7 +75,8 @@ void ftp_put(char* filename,SOCKET sclient){
     if(data_client == INVALID_SOCKET)
         printf("socket error !");
     //绑定本机的端口
-    bind_socket_local_port(data_client, 5001);
+    srand(time(NULL));
+    bind_socket_local_port(data_client, rand()%10000);
     //连接server端
     int connect_result = connect_to_server(data_client, "127.0.0.1",8001);
     
