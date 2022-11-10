@@ -86,6 +86,9 @@ void ftp_put(char* filename,SOCKET sclient){
 }
 
 void ftp_quit(SOCKET sclient){
+    //先发送命令
+    char pwd_command[MAX_FILE_SIZE] = "quit";
+    send_data_to_server(sclient, pwd_command);
     closesocket(sclient);
     printf("bye~");
 }
@@ -160,7 +163,8 @@ int main(){
     if(sclient == INVALID_SOCKET)
         printf("socket error !");
     //绑定本机的端口
-    bind_socket_local_port(sclient, 5000);
+    srand(time(NULL));
+    bind_socket_local_port(sclient, rand()%10000);
     //连接server端
     int connect_result = connect_to_server(sclient, "127.0.0.1",8000);
     int count = 0;
