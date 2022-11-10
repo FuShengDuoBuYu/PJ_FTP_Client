@@ -61,7 +61,27 @@ void ftp_put(char* filename,SOCKET sclient){
     char pwd_command[MAX_FILE_SIZE] = "put ";
     strcat(pwd_command, filename);
     send_data_to_server(sclient, pwd_command);
-    send_file_to_server(sclient, filename);
+
+    //先把recvbuf清空
+    char recvbuf[MAX_FILE_SIZE];
+    memset(recvbuf, 0, sizeof(recvbuf));
+    int recv_result = recv_data_from_server(sclient, recvbuf);
+    if(recv_result == 0){
+        //TODO: 关闭
+        return;
+    }
+    SOCKET data_client = INVALID_SOCKET;
+    data_client = create_tcp_socket();
+    if(data_client == INVALID_SOCKET)
+        printf("socket error !");
+    //绑定本机的端口
+    bind_socket_local_port(data_client, 5001);
+    //连接server端
+    int connect_result = connect_to_server(data_client, "127.0.0.1",8001);
+    
+    send_file_to_server(data_client, filename);
+
+    closesocket(data_client);
 }
 
 void ftp_quit(SOCKET sclient){
@@ -139,7 +159,7 @@ int main(){
     if(sclient == INVALID_SOCKET)
         printf("socket error !");
     //绑定本机的端口
-    bind_socket_local_port(sclient, 5555);
+    bind_socket_local_port(sclient, 5000);
     //连接server端
     int connect_result = connect_to_server(sclient, "127.0.0.1",8000);
     int count = 0;

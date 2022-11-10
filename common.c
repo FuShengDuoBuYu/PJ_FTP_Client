@@ -93,10 +93,9 @@ int send_file_to_server(SOCKET sclient, char *filename){
         file_info = generate_file_info(filename, send_buffer, send_buffer_index, &enter_count);
 printf("file_tag: %d file_tag: %d file_tag: %s\n", file_info->file_tag, file_info->file_rmd, file_info->buffer);
         // TODO: 发送文件信息
-        // if(send_file_info_to_server(sclient, file_info) == 0){
-        //     
-        //     return 0;
-        // }
+        if(send_file_info_to_server(sclient, file_info) == 0){
+            return 0;
+        }
         memset(send_buffer, 0, sizeof(send_buffer));
         // free(file_info);
         send_buffer_index++;
