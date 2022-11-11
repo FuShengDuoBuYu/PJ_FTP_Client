@@ -6,9 +6,11 @@
 #include <string.h>
 # include <stdlib.h>
 # include <time.h>
-
+#include <sys/stat.h>
+#include <unistd.h>
 #include "file_util.h"
 # define MAX_CMDLINE 1024
+
 void read_command_from_cmdline(char *cmdline, struct user_command *command);
 
 void print_ftp_info(int ftp_code, char *ftp_info){

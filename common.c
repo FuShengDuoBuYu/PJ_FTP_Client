@@ -46,7 +46,7 @@ int connect_to_server(SOCKET sclient, char *ip, int port){
 
 int send_data_to_server(SOCKET sclient, char *sendbuf){
     int iResult;
-    iResult = send(sclient, sendbuf, MAX_FILE_SIZE, 0 );
+    iResult = send(sclient, sendbuf, sizeof(MsgHeader), 0 );
     if (iResult == SOCKET_ERROR) {
         printf("send failed with error: %d\n", WSAGetLastError());
         closesocket(sclient);
@@ -57,9 +57,12 @@ int send_data_to_server(SOCKET sclient, char *sendbuf){
     return 1;
 }
 
-int send_file_info_to_server(SOCKET sclient, FileInfo *sendbuf){
+int send_file_info_to_server(SOCKET sclient, char *sendbuf){
     int iResult;
-    iResult = send(sclient, (char *)sendbuf, sizeof(FileInfo), 0 );
+    printf("1. before send sendbuf: %d %p\n", sizeof(sendbuf), sendbuf);
+    MsgHeader *header = (MsgHeader *)sendbuf;
+    iResult = send(sclient,sendbuf, sizeof(MsgHeader), 0 );
+    printf("2. after send Bytes Sent: %s iResult : %d\n", header->info.fileData.buffer, iResult);
     if (iResult == SOCKET_ERROR) {
         printf("send failed with error: %d\n", WSAGetLastError());
         closesocket(sclient);
@@ -72,7 +75,7 @@ int send_file_info_to_server(SOCKET sclient, FileInfo *sendbuf){
 
 int recv_data_from_server(SOCKET sclient, char *recvbuf){
     int iResult;
-    iResult = recv(sclient, recvbuf, MAX_FILE_SIZE, 0);
+    iResult = recv(sclient, recvbuf, sizeof(MsgHeader), 0);
     if(iResult == SOCKET_ERROR){
         printf("recv failed with error: %d\n", WSAGetLastError());
         closesocket(sclient);
@@ -83,31 +86,33 @@ int recv_data_from_server(SOCKET sclient, char *recvbuf){
 }
 
 
-int send_file_to_server(SOCKET sclient, char *filename){
-    // 使用generate_file_info生成FileInfo结构体，然后发送
-    int send_buffer_index = 0;
+int send_file_to_server(SOCKET data_client, char *filename){
+    MsgHeader msgHeader;
+    memset(&msgHeader, 0, sizeof(msgHeader));
     int enter_count = 0;
-    FileInfo *file_info;
-    char *send_buffer = (char *)malloc(MAX_FILE_SIZE);
-    do {
-        file_info = generate_file_info(filename, send_buffer, send_buffer_index, &enter_count);
-printf("file_tag: %d file_tag: %d file_tag: %s\n", file_info->file_tag, file_info->file_rmd, file_info->buffer);
-        // TODO: 发送文件信息
-        if(send_file_info_to_server(sclient, file_info) == 0){
+    do{
+        msgHeader.info.fileData.enter_count = enter_count;
+        generate_file_info(filename, &msgHeader.info.fileData,
+                            msgHeader.info.fileData.file_order,
+                            &enter_count);
+        msgHeader.msgType = MSGTYPE_PUT;
+        msgHeader.msgID = MSG_SEND;
+        send_file_info_to_server(data_client, (char* )&msgHeader);
+        recv_file_info_from_server(data_client,&msgHeader);
+        if(!(msgHeader.msgType == MSGTYPE_PUT && (msgHeader.msgID == MSG_SUCCESSED || msgHeader.msgID == MSG_SEND))){
+            printf("send file error !\n");
             return 0;
-        }
-        memset(send_buffer, 0, sizeof(send_buffer));
-        // free(file_info);
-        send_buffer_index++;
-    } while(file_info->file_tag == 0);
-
+        };
+        msgHeader.info.fileData.file_order++;
+    }while(msgHeader.msgID == MSG_SEND);
+    close_socket(data_client);
     return 1;
 }
 
 // TODO: recv file
-int recv_file_info_from_server(SOCKET sclient, FileInfo *recvbuf){
+int recv_file_info_from_server(SOCKET sclient, MsgHeader *recvbuf){
     int iResult;
-    iResult = recv(sclient, (char *)recvbuf, sizeof(FileInfo), 0);
+    iResult = recv(sclient, (char *)recvbuf, sizeof(MsgHeader), 0);
     if(iResult == SOCKET_ERROR){
         printf("recv failed with error: %d\n", WSAGetLastError());
         closesocket(sclient);
