@@ -90,21 +90,22 @@ int send_file_to_server(SOCKET data_client, char *filename){
     MsgHeader msgHeader;
     memset(&msgHeader, 0, sizeof(msgHeader));
     int enter_count = 0;
+    FileType file_type = is_binary_file(filename);
     do{
         msgHeader.info.fileData.enter_count = enter_count;
         generate_file_info(filename, &msgHeader.info.fileData,
                             msgHeader.info.fileData.file_order,
-                            &enter_count);
+                            &enter_count, file_type);
         msgHeader.msgType = MSGTYPE_PUT;
-        msgHeader.msgID = MSG_SEND;
+        msgHeader.msgID = (file_type == TEXT_FILE) ? MSG_SEND_ASCII : MSG_SEND_BINARY;
         send_file_info_to_server(data_client, (char* )&msgHeader);
         recv_file_info_from_server(data_client,&msgHeader);
-        if(!(msgHeader.msgType == MSGTYPE_PUT && (msgHeader.msgID == MSG_SUCCESSED || msgHeader.msgID == MSG_SEND))){
+        if(!(msgHeader.msgType == MSGTYPE_PUT && (msgHeader.msgID == MSG_SUCCESSED || msgHeader.msgID == MSG_SEND_BINARY || msgHeader.msgID == MSG_SEND_ASCII))){
             printf("send file error !\n");
             return 0;
         };
         msgHeader.info.fileData.file_order++;
-    }while(msgHeader.msgID == MSG_SEND);
+    }while(msgHeader.msgID == MSG_SEND_BINARY || msgHeader.msgID == MSG_SEND_ASCII);
     close_socket(data_client);
     return 1;
 }
