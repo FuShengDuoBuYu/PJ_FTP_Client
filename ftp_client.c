@@ -79,7 +79,7 @@ void ftp_put(char* filename,SOCKET sclient){
         srand(time(NULL));
         bind_socket_local_port(data_client, rand()%10000);
         //连接server端
-        int connect_result = connect_to_server(data_client, "127.0.0.1",8001);
+        int connect_result = connect_to_server(data_client, IP, 8001);
         // 在此进行状态机的变换
         if(connect_result == 0){
             printf("connect error!\n");
@@ -185,7 +185,7 @@ int main(){
     srand(time(NULL));
     bind_socket_local_port(sclient, rand()%10000);
     //连接server端
-    int connect_result = connect_to_server(sclient, "127.0.0.1",8000);
+    int connect_result = connect_to_server(sclient, IP ,8000);
     int count = 0;
     //连接失败进行轮询,轮询最多10次
     // while(connect_result == 0&&count < 10){
