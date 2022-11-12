@@ -6,8 +6,6 @@
 #include <string.h>
 # include <stdlib.h>
 # include <time.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include "file_util.h"
 # define MAX_CMDLINE 1024
 

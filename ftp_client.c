@@ -62,32 +62,31 @@ void ftp_put(char* filename,SOCKET sclient){
     memset(&msgHeader, 0, sizeof(msgHeader));
     msgHeader.msgType = MSGTYPE_PUT;
     msgHeader.msgID = MSG_FILEINFO;
-    // msgHeader.info.commandInfo.fileSize = file_stat.st_size;
     strcpy(msgHeader.info.commandInfo.argument, filename);
     send_data_to_server(sclient, (char* )&msgHeader);
     int recv_result = recv_data_from_server(sclient, (char* )&msgHeader);
-    if (msgHeader.msgID == MSG_INVAILD_FILENAME) {
+    if (msgHeader.msgID == MSG_INVALID_FILENAME) {
         print_ftp_info(msgHeader.msgID, msgHeader.info.commandInfo.argument);
         return;
     }
     if(msgHeader.msgType == MSGTYPE_PUT && msgHeader.msgID == MSG_READY){
         //发送文件
-    SOCKET data_client = INVALID_SOCKET;
-    data_client = create_tcp_socket();
-    if(data_client == INVALID_SOCKET)
-        printf("socket error !");
-    //绑定本机的端口
-    srand(time(NULL));
-    bind_socket_local_port(data_client, rand()%10000);
-    //连接server端
-    int connect_result = connect_to_server(data_client, "127.0.0.1",8001);
-    // 在此进行状态机的变换
-    if(connect_result == 0){
-        printf("connect error !");
-        return ;
-    }
-    //发送文件
-    send_file_to_server(data_client, filename);
+        SOCKET data_client = INVALID_SOCKET;
+        data_client = create_tcp_socket();
+        if(data_client == INVALID_SOCKET)
+            printf("socket error !");
+        //绑定本机的端口
+        srand(time(NULL));
+        bind_socket_local_port(data_client, rand()%10000);
+        //连接server端
+        int connect_result = connect_to_server(data_client, "127.0.0.1",8001);
+        // 在此进行状态机的变换
+        if(connect_result == 0){
+            printf("connect error !");
+            return ;
+        }
+        //发送文件
+        send_file_to_server(data_client, filename);
     }
 }
 
@@ -102,28 +101,31 @@ void ftp_quit(SOCKET sclient){
 void ftp_get(char* filename,SOCKET sclient){}
 
 void ftp_ls(SOCKET sclient){
-    //先发送命令
+    //发送命令数据包
     MsgHeader msgHeader;
     memset(&msgHeader, 0, sizeof(msgHeader));
     msgHeader.msgType = MSGTYPE_LS;
+    msgHeader.msgID = MSG_DIRINFO;
     char pwd_command[MAX_FILE_SIZE] = "ls";
-    // char* pwd_command = "ls";
     send_data_to_server(sclient, (char* )&msgHeader);
-    //先把recvbuf清空
+
+    //接收数据包
     int recv_result = recv_data_from_server(sclient, (char* )&msgHeader);
-    printf("%s\n", msgHeader.info.fileData.buffer);
+    printf("%s\n", msgHeader.info.commandInfo.argument);
 }
 
 void ftp_cd(char* dirname,SOCKET sclient){
-    //先发送命令
-    char pwd_command[MAX_FILE_SIZE] = "cd ";
-    strcat(pwd_command, dirname);
-    send_data_to_server(sclient, pwd_command);
-    char recvbuf[MAX_FILE_SIZE];
-    //先把recvbuf清空
-    memset(recvbuf, 0, sizeof(recvbuf));
-    int recv_result = recv_data_from_server(sclient, recvbuf);
-    printf("%s\n", recvbuf);
+    //发送命令数据包
+    MsgHeader msgHeader;
+    memset(&msgHeader, 0, sizeof(msgHeader));
+    msgHeader.msgType = MSGTYPE_CD;
+    msgHeader.msgID = MSG_DIRINFO;
+    strcpy(msgHeader.info.commandInfo.argument, dirname);
+    send_data_to_server(sclient, (char* )&msgHeader);
+    
+    //接收数据包
+    int recv_result = recv_data_from_server(sclient, (char* )&msgHeader);
+    printf("%s\n", msgHeader.info.commandInfo.argument);
 }
 
 void ftp_mkdir(char* dirname,SOCKET sclient){
