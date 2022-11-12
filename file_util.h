@@ -21,6 +21,8 @@ typedef enum file_type{
     TEXT_FILE
 } FileType;
 
+char file_name[MAX_FILE_SIZE];
+
 int file_exists(const char *filename);
 
 //判断文件是否为二进制文件

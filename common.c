@@ -28,6 +28,49 @@ int bind_socket_local_port(SOCKET sclient, int port){
     return 1;
 }
 
+int socket_bind(SOCKET sclient, int port){
+    struct sockaddr_in clientAddr;
+    clientAddr.sin_family = AF_INET;
+    clientAddr.sin_port = htons(port);
+    clientAddr.sin_addr.S_un.S_addr = 0;
+    int iResult;
+    iResult = bind(sclient, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
+    if(iResult == SOCKET_ERROR){
+        printf("bind error !");
+        closesocket(sclient);
+        WSACleanup();
+        return 0;
+    }
+    return 1;
+}
+
+int socket_listen(SOCKET sclient){
+    int iResult;
+    iResult = listen(sclient, 5);
+    if(iResult == SOCKET_ERROR){
+        printf("listen error !");
+        closesocket(sclient);
+        WSACleanup();
+        return 0;
+    }
+    return 1;
+}
+
+SOCKET socket_accept(SOCKET listenSocket){
+    int iResult;
+    SOCKET clientSocket = INVALID_SOCKET;
+
+    // Accept a client socket
+    clientSocket = accept(listenSocket, NULL, NULL);
+    if (clientSocket == INVALID_SOCKET) {
+        printf("accept failed: %d\n", WSAGetLastError());
+        closesocket(listenSocket);
+        WSACleanup();
+        return 1;
+    }
+    return clientSocket;
+}
+
 int connect_to_server(SOCKET sclient, char *ip, int port){
     int iResult;
     struct sockaddr_in serAddr;
@@ -127,4 +170,22 @@ int close_socket(SOCKET sclient){
     closesocket(sclient);
     WSACleanup();
     return 1;
+}
+
+// 获取本机IP
+char* get_ip(){
+    WSADATA wsaData;
+    char name[155];
+    char *ip;
+    PHOSTENT hostinfo;
+    if (WSAStartup(MAKEWORD(2, 0), &wsaData) == 0){
+        if (gethostname(name, sizeof(name)) == 0){
+            if ((hostinfo = gethostbyname(name)) != NULL){
+                ip = inet_ntoa(*(struct in_addr *)*hostinfo->h_addr_list);
+                return ip;
+                // printf(" IP地址: %s ", ip);
+            }
+        }
+        WSACleanup();
+    }
 }

@@ -63,6 +63,15 @@ SOCKET create_tcp_socket();
 //绑定本机端口
 int bind_socket_local_port(SOCKET sclient, int port);
 
+//绑定本机端口
+int socket_bind(SOCKET sclient, int port);
+
+//开始监听
+int socket_listen(SOCKET sclient);
+
+//接受客户端的连接
+SOCKET socket_accept(SOCKET listenSocket);
+
 //连接到服务端
 int connect_to_server(SOCKET sclient, char *ip, int port);
 
@@ -83,4 +92,6 @@ int recv_file_info_from_server(SOCKET sclient, MsgHeader *recvbuf);
 
 //关闭连接
 int close_socket(SOCKET sclient);
+
+char* get_ip();
 # endif
