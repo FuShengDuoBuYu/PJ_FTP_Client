@@ -82,12 +82,13 @@ void ftp_put(char* filename,SOCKET sclient){
         int connect_result = connect_to_server(data_client, "127.0.0.1",8001);
         // 在此进行状态机的变换
         if(connect_result == 0){
-            printf("connect error !");
+            printf("connect error!\n");
             return ;
         }
         //发送文件
         send_file_to_server(data_client, filename);
     }
+    printf("file uploaded!\n");
 }
 
 void ftp_quit(SOCKET sclient){

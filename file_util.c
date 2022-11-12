@@ -10,7 +10,7 @@ char* get_current_dir(){
 }
 
 int file_exists(const char *filename){
-    printf("file %s\n", filename);
+    // printf("file %s\n", filename);
     FILE *fp = fopen(filename, "r");
     if(fp == NULL){
         return 0;
@@ -24,8 +24,8 @@ FileType is_binary_file(const char *filename){
     if(fp == NULL){
         return 0;
     }
-    char buf[MAX_FILE_SIZE];
-    int n = fread(buf, 1, MAX_FILE_SIZE, fp);
+    char buf[4*MAX_FILE_SIZE];
+    int n = fread(buf, 1, 4*MAX_FILE_SIZE, fp);
     fclose(fp);
     for(int i = 0; i < n; i++){
         if(buf[i] == '\0'){
