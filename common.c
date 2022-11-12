@@ -59,10 +59,8 @@ int send_data_to_server(SOCKET sclient, char *sendbuf){
 
 int send_file_info_to_server(SOCKET sclient, char *sendbuf){
     int iResult;
-    printf("1. before send sendbuf: %d %p\n", sizeof(sendbuf), sendbuf);
     MsgHeader *header = (MsgHeader *)sendbuf;
     iResult = send(sclient,sendbuf, sizeof(MsgHeader), 0 );
-    printf("2. after send Bytes Sent: %s iResult : %d\n", header->info.fileData.buffer, iResult);
     if (iResult == SOCKET_ERROR) {
         printf("send failed with error: %d\n", WSAGetLastError());
         closesocket(sclient);
@@ -82,6 +80,7 @@ int recv_data_from_server(SOCKET sclient, char *recvbuf){
         WSACleanup();
         return 0;
     }
+    printf("Bytes Recv: %ld\n", iResult);
     return 1;
 }
 
@@ -120,6 +119,7 @@ int recv_file_info_from_server(SOCKET sclient, MsgHeader *recvbuf){
         WSACleanup();
         return 0;
     }
+    printf("Bytes Recv: %ld\n", iResult);
     return 1;
 }
 
