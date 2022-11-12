@@ -91,9 +91,11 @@ void ftp_put(char* filename,SOCKET sclient){
 }
 
 void ftp_quit(SOCKET sclient){
-    //先发送命令
-    char pwd_command[MAX_FILE_SIZE] = "quit";
-    send_data_to_server(sclient, pwd_command);
+    //发送命令数据包
+    MsgHeader msgHeader;
+    memset(&msgHeader, 0, sizeof(msgHeader));
+    msgHeader.msgType = MSGTYPE_QUIT;
+    send_data_to_server(sclient, (char* )&msgHeader);
     closesocket(sclient);
     printf("bye~");
 }
@@ -129,38 +131,45 @@ void ftp_cd(char* dirname,SOCKET sclient){
 }
 
 void ftp_mkdir(char* dirname,SOCKET sclient){
-    //先发送命令
-    char pwd_command[MAX_FILE_SIZE] = "mkdir ";
-    strcat(pwd_command, dirname);
-    send_data_to_server(sclient, pwd_command);
-    char recvbuf[MAX_FILE_SIZE];
-    //先把recvbuf清空
-    memset(recvbuf, 0, sizeof(recvbuf));
-    int recv_result = recv_data_from_server(sclient, recvbuf);
-    printf("%s\n", recvbuf);
+    //发送命令数据包
+    MsgHeader msgHeader;
+    memset(&msgHeader, 0, sizeof(msgHeader));
+    msgHeader.msgType = MSGTYPE_MKDIR;
+    msgHeader.msgID = MSG_DIRINFO;
+    strcpy(msgHeader.info.commandInfo.argument, dirname);
+    send_data_to_server(sclient, (char* )&msgHeader);
+    
+    //接收数据包
+    int recv_result = recv_data_from_server(sclient, (char* )&msgHeader);
+    printf("%s\n", msgHeader.info.commandInfo.argument);
 }
 
 void ftp_pwd(SOCKET sclient){
-    //先发送命令
-    char command[MAX_FILE_SIZE] = "pwd";
-    send_data_to_server(sclient, command);
-    char recvbuf[MAX_FILE_SIZE];
-    //先把recvbuf清空
-    memset(recvbuf, 0, sizeof(recvbuf));
-    int recv_result = recv_data_from_server(sclient, recvbuf);
-    printf("%s\n", recvbuf);
+    //发送命令数据包
+    MsgHeader msgHeader;
+    memset(&msgHeader, 0, sizeof(msgHeader));
+    msgHeader.msgType = MSGTYPE_PWD;
+    msgHeader.msgID = MSG_DIRINFO;
+    char pwd_command[MAX_FILE_SIZE] = "pwd";
+    send_data_to_server(sclient, (char* )&msgHeader);
+
+    //接收数据包
+    int recv_result = recv_data_from_server(sclient, (char* )&msgHeader);
+    printf("%s\n", msgHeader.info.commandInfo.argument);
 }
 
 void ftp_delete(char* filename,SOCKET sclient){
-    //先发送命令
-    char pwd_command[MAX_FILE_SIZE] = "delete ";
-    strcat(pwd_command, filename);
-    send_data_to_server(sclient, pwd_command);
-    char recvbuf[MAX_FILE_SIZE];
-    //先把recvbuf清空
-    memset(recvbuf, 0, sizeof(recvbuf));
-    int recv_result = recv_data_from_server(sclient, recvbuf);
-    printf("%s\n", recvbuf);
+    //发送命令数据包
+    MsgHeader msgHeader;
+    memset(&msgHeader, 0, sizeof(msgHeader));
+    msgHeader.msgType = MSGTYPE_DELETE;
+    msgHeader.msgID = MSG_DIRINFO;
+    strcpy(msgHeader.info.commandInfo.argument, filename);
+    send_data_to_server(sclient, (char* )&msgHeader);
+    
+    //接收数据包
+    int recv_result = recv_data_from_server(sclient, (char* )&msgHeader);
+    printf("%s\n", msgHeader.info.commandInfo.argument);
 }
 
 int main(){
