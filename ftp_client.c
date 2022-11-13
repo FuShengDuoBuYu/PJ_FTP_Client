@@ -122,8 +122,8 @@ void ftp_get(char* filename,SOCKET sclient){
     msgHeader.msgID = MSG_FILEINFO;
     //把IP和文件名都发给Server
     strcpy(msgHeader.info.commandInfo.argument, filename);
-    strcat(msgHeader.info.commandInfo.argument, " ");
-    strcat(msgHeader.info.commandInfo.argument, get_ip());
+    // strcat(msgHeader.info.commandInfo.argument, " ");
+    // strcat(msgHeader.info.commandInfo.argument, get_ip());
     send_data_to_server(sclient, (char* )&msgHeader);
 
     //2.接受S端的确认指令，开启数据通道
@@ -132,47 +132,40 @@ void ftp_get(char* filename,SOCKET sclient){
         printf("file not exists in Server\n");
         return;
     }
-    //接收到Ready信息，打开端口
+    //接收到Ready信息，连接端口
     if(msgHeader.msgType == MSGTYPE_GET && msgHeader.msgID == MSG_READY){
         SOCKET data_client = INVALID_SOCKET;
         data_client = create_tcp_socket();
         if(data_client == INVALID_SOCKET)
             printf("socket error !");
-        //创建tcp Socket
-        SOCKET ListenSocket = INVALID_SOCKET;
-        SOCKET ClientSocket = INVALID_SOCKET;
-        
-        //初始化ListenSocket
-        ListenSocket = create_tcp_socket();
-        //绑定端口
-        socket_bind(ListenSocket, 8002);
-        
-        //开始监听
-        socket_listen(ListenSocket);
-        msgHeader.msgType = MSGTYPE_GET;
-        msgHeader.msgID = MSG_READY;
-        send_data_to_server(sclient, (char*)&msgHeader);
-        ClientSocket = socket_accept(ListenSocket);
-// printf("ClientSocket:%d\n",ClientSocket);
-        //3.循环接收文件块
+        //绑定本机的端口
+        srand(time(NULL));
+        bind_socket_local_port(data_client, rand()%10000);
+        //连接server端
+        int connect_result = connect_to_server(data_client, IP, 8002);
+        // 在此进行状态机的变换
+        if(connect_result == 0){
+            printf("connect error!\n");
+            return ;
+        }
+        //连接成功后开始接收文件
         do{
-            recv_file_info_from_server(ClientSocket, &msgHeader);
+            recv_file_info_from_server(data_client, &msgHeader);
             FileType fileType = (msgHeader.msgID == MSG_SEND_BINARY) ? BINARY_FILE : TEXT_FILE;
     // printf("fileType: %d\n", fileType);
             write_file_info(file_name, &msgHeader.info.fileData, fileType);
-            msgHeader.msgID = msgHeader.msgID;
 
             if (msgHeader.info.fileData.file_tag == 1){
                 msgHeader.msgID = MSG_SUCCESSED;
             }
-            send_file_info_to_server(ClientSocket, (char *)&msgHeader);
+            send_file_info_to_server(data_client, (char *)&msgHeader);
         }while(msgHeader.info.fileData.file_tag == 0);
 
     }
     
 
     //4.结束，打印信息
-    printf("file got!");
+    printf("file got!\n");
 }
 
 void ftp_ls(SOCKET sclient){

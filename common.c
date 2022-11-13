@@ -102,7 +102,7 @@ int send_data_to_server(SOCKET sclient, char *sendbuf){
 
 int send_file_info_to_server(SOCKET sclient, char *sendbuf){
     int iResult;
-    MsgHeader *header = (MsgHeader *)sendbuf;
+    
     iResult = send(sclient,sendbuf, sizeof(MsgHeader), 0 );
     if (iResult == SOCKET_ERROR) {
         printf("send failed with error: %d\n", WSAGetLastError());

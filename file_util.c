@@ -87,12 +87,6 @@ void generate_file_info(const char *filename, FileInfo *fileInfo, int buffer_ind
 }
 
 int write_file_info(char *filename, FileInfo *file_info, FileType fileType){
-    
-    char* dir = get_current_dir();
-    memset(filename, 0, MAX_FILE_SIZE);
-    strcat(filename, dir);
-    strcat(filename, "\\");
-    strcat(filename, filename);
     FILE *fp = fileType == BINARY_FILE ? fopen(filename, "ab+") : fopen(filename, "a+");
     if(fp == NULL){
         return 0;
