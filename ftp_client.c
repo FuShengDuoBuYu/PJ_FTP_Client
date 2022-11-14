@@ -82,7 +82,10 @@ void ftp_put(char* filename,SOCKET sclient){
         srand(time(NULL));
         bind_socket_local_port(data_client, rand()%10000);
         //连接server端
-        int connect_result = connect_to_server(data_client, IP, 8001);
+        //用char数组存储端口号,char整数范围为-128~127，所以用两个char存储一个int，要*127
+        int serverPort = msgHeader.info.commandInfo.argument[1]*127
+                            + msgHeader.info.commandInfo.argument[0];
+        int connect_result = connect_to_server(data_client, IP, serverPort);
         // 在此进行状态机的变换
         if(connect_result == 0){
             printf("connect error!\n");
@@ -129,7 +132,6 @@ void ftp_get(char* filename,SOCKET sclient){
 
     //2.接受S端的确认指令
     recv_data_from_server(sclient, (char* )&msgHeader);
-    // TODO: 在msgHeader.commandInfo.argument中取出端口号，并把下方的8001端口替换为获取到的端口号
     if (msgHeader.msgID == MSG_INVALID_FILENAME){
         printf("file not exists in Server\n");
         return;
@@ -144,7 +146,10 @@ void ftp_get(char* filename,SOCKET sclient){
         srand(time(NULL));
         bind_socket_local_port(data_client, rand()%10000);
         //连接server端
-        int connect_result = connect_to_server(data_client, IP, 8002);
+        //用char数组存储端口号,char整数范围为-128~127，所以用两个char存储一个int，要mod127
+        int serverPort = msgHeader.info.commandInfo.argument[1]*127
+                            + msgHeader.info.commandInfo.argument[0];
+        int connect_result = connect_to_server(data_client, IP, serverPort);
         // 在此进行状态机的变换
         if(connect_result == 0){
             printf("connect error!\n");
