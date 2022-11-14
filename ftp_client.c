@@ -67,6 +67,7 @@ void ftp_put(char* filename,SOCKET sclient){
     send_data_to_server(sclient, (char* )&msgHeader);
 
     int recv_result = recv_data_from_server(sclient, (char* )&msgHeader);
+    // TODO: 在msgHeader.commandInfo.argument中取出端口号，并把下方的8001端口替换为获取到的端口号
     if (msgHeader.msgID == MSG_INVALID_FILENAME) {
         print_ftp_info(msgHeader.msgID, msgHeader.info.commandInfo.argument);
         return;
@@ -126,8 +127,9 @@ void ftp_get(char* filename,SOCKET sclient){
     // strcat(msgHeader.info.commandInfo.argument, get_ip());
     send_data_to_server(sclient, (char* )&msgHeader);
 
-    //2.接受S端的确认指令，开启数据通道
+    //2.接受S端的确认指令
     recv_data_from_server(sclient, (char* )&msgHeader);
+    // TODO: 在msgHeader.commandInfo.argument中取出端口号，并把下方的8001端口替换为获取到的端口号
     if (msgHeader.msgID == MSG_INVALID_FILENAME){
         printf("file not exists in Server\n");
         return;
