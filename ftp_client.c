@@ -245,7 +245,20 @@ void ftp_delete(char* filename,SOCKET sclient){
     printf("%s\n", msgHeader.info.commandInfo.argument);
 }
 
-int main(){
+int main(int argc,char* argv[]){
+    //输出命令行参数
+    if(argc != 3){
+        printf("format error!the true format is : a.exe -ip IP\n");
+        return 0;
+    }else{
+        if(strcmp(argv[1], "-ip") == 0){
+        strcpy(IP, argv[2]);
+        }
+        else{
+            printf("please input the server ip!\n");
+            return 0;
+        }
+    }
     char cmdline[MAX_CMDLINE];
     struct user_command command;
     //创建tcp Socket
@@ -257,7 +270,7 @@ int main(){
     srand(time(NULL));
     bind_socket_local_port(sclient, rand()%10000);
     //连接server端
-    int connect_result = connect_to_server(sclient, IP ,8000);
+    int connect_result = connect_to_server(sclient, IP ,21);
     int count = 0;
     //连接失败进行轮询,轮询最多10次
     // while(connect_result == 0&&count < 10){

@@ -8,7 +8,8 @@
 # include <time.h>
 #include "file_util.h"
 # define MAX_CMDLINE 1024
-# define IP "127.0.0.1"
+// # define IP "192.168.31.81"
+char IP[32]; 
 
 void read_command_from_cmdline(char *cmdline, struct user_command *command);
 
